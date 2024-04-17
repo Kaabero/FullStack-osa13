@@ -4,6 +4,8 @@ const { Sequelize, Model, DataTypes } = require('sequelize')
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 const sequelize = new Sequelize(process.env.DATABASE_URL)
 
 class Blog extends Model {}
@@ -44,6 +46,7 @@ app.get('/api/blogs', async (req, res) => {
 })
 
 app.post('/api/blogs', async (req, res) => {
+  console.log(req.body)
   try {
     const blog = await Blog.create(req.body)
     console.log(blog.toJSON())

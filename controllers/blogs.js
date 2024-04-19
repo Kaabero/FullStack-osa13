@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 const jwt = require('jsonwebtoken')
 const router = require('express').Router()
+const { Op } = require('sequelize')
 
 const { SECRET } = require('../util/config')
 
@@ -46,15 +47,37 @@ const errorHandler = (error, req, res, next) => {
 }
 
 
-router.get('/', async (req, res) => {
-    const blogs = await Blog.findAll({
-        attributes: { exclude: ['userId']},
-        include: {
-            model: User,
-            attributes: ['name', 'username']
+router.get('/', async (req, res, next) => {
+    try {
+        let where = {}
+        if (req.query.search) {
+            where = {
+                [Op.or]:
+                [{
+                    title: {
+                        [Op.iLike]: `%${req.query.search}%`
+                    }
+                },
+                {
+                    author: {
+                        [Op.iLike]: `%${req.query.search}%`
+                    }
+                }]
+            }
         }
-    })
-    res.json(blogs)
+        const blogs = await Blog.findAll({
+            attributes: { exclude: ['userId']},
+            include: {
+                model: User,
+                attributes: ['name', 'username']
+            },
+            where
+        })
+        res.json(blogs)
+
+    } catch (error) {
+        next(error)
+    }
 })
   
 router.post('/', tokenExtractor, async (req, res, next) => {

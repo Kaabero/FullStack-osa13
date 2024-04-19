@@ -55,11 +55,11 @@ router.post('/', tokenExtractor, async (req, res, next) => {
     console.log(req.body)
     try {
         const user = await User.findByPk(req.decodedToken.id)
-      const blog = await Blog.create({ ...req.body, userId: user.id })
-      console.log(blog.toJSON())
-      return res.json(blog)
+        const blog = await Blog.create({ ...req.body, userId: user.id })
+        console.log(blog.toJSON())
+        return res.json(blog)
     } catch(error) {
-      next(error)
+        next(error)
     }
 })
   
@@ -72,13 +72,19 @@ router.get('/:id', blogFinder, async (req, res) => {
 })
   
   
-router.delete('/:id', blogFinder, async (req, res) => {
+router.delete('/:id', blogFinder, tokenExtractor, async (req, res) => {
+    console.log('login_userId', req.decodedToken.id)
   
     if (req.blog) {
-      await req.blog.destroy()
-      res.status(204).end()
+        console.log('blog_userId', req.blog.dataValues.userId)
+        if (req.decodedToken.id === req.blog.dataValues.userId) {
+            await req.blog.destroy()
+            res.status(204).end()
+        } else {
+            return res.status(404).json({ error: 'invalid credentials' })
+        }
     } else {
-      res.status(404).end()
+        return res.status(404).json({ error: 'invalid blog id number' })
     }
 })
 

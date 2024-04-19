@@ -2,6 +2,7 @@
 const router = require('express').Router()
 
 const { User } = require('../models')
+const { Blog } = require('../models')
 
 
 const errorHandler = (error, req, res, next) => {
@@ -21,7 +22,11 @@ const errorHandler = (error, req, res, next) => {
 }
 
 router.get('/', async (req, res) => {
-  const users = await User.findAll()
+  const users = await User.findAll({
+    include: {
+        model: Blog
+    }
+  })
   res.json(users)
 })
 
@@ -53,6 +58,16 @@ router.put('/:username', async (req, res, next) => {
         res.json(user)
     } catch (error) {
         next(error)
+    }
+})
+
+router.delete('/:id', async (req, res) => {
+    const user = await User.findByPk(req.params.id)
+    if (user) {
+      await user.destroy()
+      res.status(204).end()
+    } else {
+      res.status(404).end()
     }
 })
 

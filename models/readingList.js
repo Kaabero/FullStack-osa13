@@ -3,6 +3,8 @@ const { Model, DataTypes } = require('sequelize')
 
 const { sequelize } = require('../util/db')
 
+
+
 class ReadingList extends Model {}
 
 ReadingList.init({
@@ -30,7 +32,11 @@ ReadingList.init({
     sequelize,
     underscored: true,
     timestamps: false,
-    modelName: 'readingList'
+    modelName: 'reading_list'
   })
+
+
+
+
 
 module.exports = ReadingList

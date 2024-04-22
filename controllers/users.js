@@ -5,6 +5,7 @@ const { User } = require('../models')
 const { Blog } = require('../models')
 
 
+
 const errorHandler = (error, req, res, next) => {
     console.error(error.message)
     if (error.name === 'CastError') {
@@ -41,25 +42,36 @@ router.post('/', async (req, res, next) => {
 })
 
 router.get('/:id', async (req, res) => {
-    
-  const user = await User.findByPk(req.params.id)
+  let where = {}
+
+  if (req.query) {
+    where = req.query
+  }
+
+  const user = await User.findByPk(req.params.id, {
+    attributes: { exclude: ['created_at', 'updated_at'] } ,
+    include: [
+      {
+        model: Blog,
+        attributes: { exclude: ['userId', 'created_at', 'updated_at'] },
+      },
+      {
+        model: Blog, 
+        where,
+        as: 'readings',
+        attributes: { exclude: ['userId', 'created_at', 'updated_at']},
+        through: {
+          attributes: []
+        },
+        
+      },
+    ]
+  })
   if (user) {
     res.json(user)
   } else {
     res.status(404).end()
   }
-})
-
-router.put('/:username', async (req, res, next) => {
-   
-    try {
-        const user = await User.findOne({where: { username: req.params.username }})
-        user.name = req.body.name
-        await user.save()
-        res.json(user)
-    } catch (error) {
-        next(error)
-    }
 })
 
 router.delete('/:id', async (req, res) => {

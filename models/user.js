@@ -23,10 +23,13 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false
   },
+  
 }, {
   sequelize,
   underscored: true,
   timestamps: true,
+  updatedAt: 'updated_at',
+  createdAt: 'created_at',
   modelName: 'user'
 })
 

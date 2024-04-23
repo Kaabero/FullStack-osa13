@@ -4,8 +4,9 @@ const router = require('express').Router()
 
 const { SECRET } = require('../util/config')
 const User = require('../models/user')
+const Session = require('../models/session');
 
-router.post('/', async (request, response) => {
+router.post('/', async (request, response, next) => {
   const body = request.body
 
   const user = await User.findOne({
@@ -27,7 +28,19 @@ router.post('/', async (request, response) => {
     id: user.id,
   }
 
+  if (user.disabled) {
+    return response.status(401).json({
+      error: 'account disabled, please contact admin'
+    })
+  }
+
   const token = jwt.sign(userForToken, SECRET)
+
+  try {
+    await Session.create({token, user_id: user.id})
+  } catch (error) {
+    next(error)
+  }
 
   response
     .status(200)

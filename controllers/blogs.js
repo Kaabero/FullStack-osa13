@@ -73,6 +73,11 @@ router.post('/', tokenExtractor, async (req, res, next) => {
     console.log(req.body)
     try {
         const user = await User.findByPk(req.decodedToken.id)
+        if (user.disabled) {
+            return response.status(401).json({
+              error: 'account disabled, please contact admin'
+            })
+        }
         const blog = await Blog.create({ ...req.body, userId: user.id })
         console.log(blog.toJSON())
         return res.json(blog)
@@ -92,6 +97,12 @@ router.get('/:id', blogFinder, async (req, res) => {
   
 router.delete('/:id', blogFinder, tokenExtractor, async (req, res) => {
     console.log('login_userId', req.decodedToken.id)
+    const user = await User.findByPk(req.decodedToken.id)
+    if (user.disabled) {
+        return response.status(401).json({
+            error: 'account disabled, please contact admin'
+        })
+    }
   
     if (req.blog) {
         console.log('blog_userId', req.blog.dataValues.userId)

@@ -40,6 +40,12 @@ router.put('/:id', tokenExtractor, async (req, res, next) => {
   console.log(req.body)
   try {
       const user = await User.findByPk(req.decodedToken.id)
+    
+      if (user.disabled) {
+          return response.status(401).json({
+            error: 'account disabled, please contact admin'
+          })
+      }
       const readinglist = await ReadingList.findByPk(req.params.id)
       if (user.id !== readinglist.userId) {
         res.status(404).send({ error: 'invalid credentials' });

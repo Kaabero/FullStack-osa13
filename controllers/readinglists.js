@@ -2,6 +2,8 @@
 const router = require('express').Router()
 
 const { ReadingList } = require('../models')
+const { User } = require('../models')
+const { tokenExtractor } = require('../util/middleware')
 
 
 const errorHandler = (error, req, res, next) => {
@@ -33,6 +35,25 @@ router.post('/', async (req, res, next) => {
     next(error)
   }
 })
+
+router.put('/:id', tokenExtractor, async (req, res, next) => {
+  console.log(req.body)
+  try {
+      const user = await User.findByPk(req.decodedToken.id)
+      const readinglist = await ReadingList.findByPk(req.params.id)
+      if (user.id !== readinglist.userId) {
+        res.status(404).send({ error: 'invalid credentials' });
+      }
+      readinglist.read = req.body.read
+      await readinglist.save()
+ 
+      return res.json(readinglist)
+  } catch(error) {
+      next(error)
+  }
+})
+
+
 
 
 router.use(errorHandler)

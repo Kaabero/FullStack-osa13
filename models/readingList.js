@@ -23,10 +23,10 @@ ReadingList.init({
       allowNull: false,
       references: { model: 'users', key: 'id' },
     },
-    unread: {
+    read: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true
+      defaultValue: false
     }
   }, {
     sequelize,

@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 const router = require('express').Router()
 
-const { User } = require('../models')
+const { User, ReadingList } = require('../models')
 const { Blog } = require('../models')
 
 
@@ -42,6 +42,7 @@ router.post('/', async (req, res, next) => {
 })
 
 router.get('/:id', async (req, res) => {
+
   let where = {}
 
   if (req.query) {
@@ -60,11 +61,15 @@ router.get('/:id', async (req, res) => {
         where,
         as: 'readings',
         attributes: { exclude: ['userId', 'created_at', 'updated_at']},
+        include: {
+            model: ReadingList, 
+            attributes: { exclude: [ 'userId', 'blogId' ] }
+          },
         through: {
           attributes: []
         },
-        
       },
+      
     ]
   })
   if (user) {

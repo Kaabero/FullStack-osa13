@@ -6,7 +6,11 @@ const ReadingList = require('./readingList')
 User.hasMany(Blog)
 Blog.belongsTo(User)
 User.belongsToMany(Blog, { through: ReadingList, as: 'readings'})
-Blog.belongsToMany(User, {through: ReadingList})
+Blog.belongsToMany(User, {through: ReadingList, as: 'usersReadingLists'})
+User.hasMany(ReadingList);
+ReadingList.belongsTo(User);
+Blog.hasMany(ReadingList);
+ReadingList.belongsTo(Blog);
 
 
 
